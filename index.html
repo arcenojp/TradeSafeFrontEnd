@@ -1,34 +1,647 @@
-import React, { useEffect, useState } from "react";
-import { View, Text, Button, FlatList } from "react-native";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TradeSphere - Secure Trading Platform</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --dark-bg: #0f172a;
+            --card-bg: #1e293b;
+            --primary: #0ea5e9;
+            --secondary: #10b981;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --danger: #ef4444;
+            --success: #22c55e;
+        }
 
-export default function HomeScreen() {
-  const [listings, setListings] = useState<any[]>([]);
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
 
-  useEffect(() => {
-    fetch("http://localhost:3000/listings")
-      .then((res) => res.json())
-      .then((data) => setListings(data))
-      .catch((err) => console.error(err));
-  }, []);
+        body {
+            background-color: var(--dark-bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
 
-  return (
-    <View style={{ flex: 1, padding: 20 }}>
-      <Text style={{ fontSize: 18, fontWeight: "bold", marginBottom: 10 }}>
-        Listings
-      </Text>
-      <FlatList
-        data={listings}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <View style={{ marginBottom: 15, padding: 10, backgroundColor: "#eee" }}>
-            <Text style={{ fontSize: 16 }}>{item.title}</Text>
-            <Text>
-              {item.price_cents / 100} {item.currency}
-            </Text>
-            <Button title="Buy" onPress={() => alert(`Buying ${item.title}`)} />
-          </View>
-        )}
-      />
-    </View>
-  );
-}
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header Styles */
+        header {
+            background-color: var(--card-bg);
+            padding: 15px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .logo i {
+            color: var(--secondary);
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 25px;
+        }
+
+        nav a {
+            color: var(--text);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        nav a:hover {
+            color: var(--primary);
+        }
+
+        .user-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: none;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #0284c7;
+        }
+
+        .btn-secondary {
+            background-color: var(--secondary);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #059669;
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 60px 0;
+            text-align: center;
+            background: linear-gradient(to right, #0f172a, #1e293b);
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            max-width: 700px;
+            margin: 0 auto 30px;
+        }
+
+        /* Features Section */
+        .features {
+            padding: 60px 0;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 2rem;
+            color: var(--primary);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        .feature-card {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            padding: 25px;
+            text-align: center;
+            transition: transform 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .feature-card i {
+            font-size: 2.5rem;
+            color: var(--secondary);
+            margin-bottom: 15px;
+        }
+
+        .feature-card h3 {
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+        /* Communities Section */
+        .communities {
+            padding: 60px 0;
+            background-color: rgba(30, 41, 59, 0.3);
+        }
+
+        .communities-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .community-card {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            overflow: hidden;
+            transition: transform 0.3s;
+        }
+
+        .community-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .community-img {
+            height: 150px;
+            background: linear-gradient(to right, #0ea5e9, #10b981);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .community-img i {
+            font-size: 3rem;
+            color: white;
+        }
+
+        .community-content {
+            padding: 20px;
+        }
+
+        .community-content h3 {
+            margin-bottom: 10px;
+        }
+
+        .members {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* How It Works */
+        .how-it-works {
+            padding: 60px 0;
+        }
+
+        .steps {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            max-width: 250px;
+        }
+
+        .step-number {
+            width: 50px;
+            height: 50px;
+            background-color: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+        }
+
+        /* Transactions Section */
+        .transactions {
+            padding: 60px 0;
+            background-color: rgba(30, 41, 59, 0.3);
+        }
+
+        .transaction-card {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .transaction-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(to right, #0ea5e9, #10b981);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .trust-badge {
+            background-color: var(--secondary);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            margin-left: 10px;
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--card-bg);
+            padding: 40px 0 20px;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .footer-column h3 {
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+        }
+
+        .footer-column ul {
+            list-style: none;
+        }
+
+        .footer-column ul li {
+            margin-bottom: 10px;
+        }
+
+        .footer-column a {
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-column a:hover {
+            color: var(--primary);
+        }
+
+        .social-links {
+            display: flex;
+            gap: 15px;
+        }
+
+        .social-links a {
+            color: var(--text);
+            font-size: 1.2rem;
+        }
+
+        .copyright {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            nav ul {
+                gap: 15px;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .hero h1 {
+                font-size: 2rem;
+            }
+            
+            .hero p {
+                font-size: 1rem;
+            }
+            
+            .steps {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>TradeSphere</span>
+                </div>
+                <nav>
+                    <ul>
+                        <li><a href="#">Home</a></li>
+                        <li><a href="#">Markets</a></li>
+                        <li><a href="#">Communities</a></li>
+                        <li><a href="#">How It Works</a></li>
+                        <li><a href="#">Support</a></li>
+                    </ul>
+                </nav>
+                <div class="user-actions">
+                    <button class="btn btn-primary">Sign Up</button>
+                    <button class="btn">Login</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h1>Trade with Confidence, No More Scams</h1>
+            <p>TradeSphere is a secure trading platform that holds funds in escrow until transactions are completed, with built-in social features and specialized communities.</p>
+            <button class="btn btn-secondary">Get Started</button>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features">
+        <div class="container">
+            <h2 class="section-title">Key Features</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <i class="fas fa-lock"></i>
+                    <h3>Secure Escrow System</h3>
+                    <p>Funds are held securely until the transaction is completed and verified by both parties.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-users"></i>
+                    <h3>Social Trading</h3>
+                    <p>Interact with other traders, share experiences, and build your trusted network.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-gamepad"></i>
+                    <h3>Specialized Communities</h3>
+                    <p>Join communities focused on specific items like gaming accounts, collectibles, and more.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-star"></i>
+                    <h3>Trust Rating System</h3>
+                    <p>Rate your trading partners and build a reputation as a trusted user.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-qrcode"></i>
+                    <h3>QR Code Verification</h3>
+                    <p>Complete transactions securely with unique QR codes for redemption.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-comments"></i>
+                    <h3>In-App Messaging</h3>
+                    <p>Communicate directly with buyers and sellers to negotiate terms.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Communities Section -->
+    <section class="communities">
+        <div class="container">
+            <h2 class="section-title">Popular Communities</h2>
+            <div class="communities-grid">
+                <div class="community-card">
+                    <div class="community-img">
+                        <i class="fas fa-gamepad"></i>
+                    </div>
+                    <div class="community-content">
+                        <h3>Gaming Marketplace</h3>
+                        <p>Buy and sell game accounts, items, and currency</p>
+                        <div class="members">
+                            <i class="fas fa-users"></i>
+                            <span>12,845 members</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="community-card">
+                    <div class="community-img">
+                        <i class="fas fa-laptop"></i>
+                    </div>
+                    <div class="community-content">
+                        <h3>Electronics</h3>
+                        <p>Trade gadgets, components, and tech accessories</p>
+                        <div class="members">
+                            <i class="fas fa-users"></i>
+                            <span>8,432 members</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="community-card">
+                    <div class="community-img">
+                        <i class="fas fa-tshirt"></i>
+                    </div>
+                    <div class="community-content">
+                        <h3>Fashion & Apparel</h3>
+                        <p>Trade branded clothing, shoes, and accessories</p>
+                        <div class="members">
+                            <i class="fas fa-users"></i>
+                            <span>5,678 members</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="community-card">
+                    <div class="community-img">
+                        <i class="fas fa-coins"></i>
+                    </div>
+                    <div class="community-content">
+                        <h3>Crypto & NFTs</h3>
+                        <p>Trade digital assets and collectibles securely</p>
+                        <div class="members">
+                            <i class="fas fa-users"></i>
+                            <span>15,239 members</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section class="how-it-works">
+        <div class="container">
+            <h2 class="section-title">How TradeSphere Works</h2>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h3>Create Listing</h3>
+                    <p>List your item for sale with details and price</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h3>Buyer Pays</h3>
+                    <p>Buyer sends payment to secure escrow account</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <h3>Item Delivery</h3>
+                    <p>Seller provides item or access to buyer</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <h3>Confirm & Release</h3>
+                    <p>Buyer confirms receipt, funds released to seller</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Transactions Section -->
+    <section class="transactions">
+        <div class="container">
+            <h2 class="section-title">Recent Transactions</h2>
+            <div class="transaction-card">
+                <div class="transaction-header">
+                    <div class="user-info">
+                        <div class="avatar">JD</div>
+                        <div>
+                            <strong>John Doe</strong>
+                            <span class="trust-badge">4.9 ★</span>
+                        </div>
+                    </div>
+                    <div class="amount">$127.50</div>
+                </div>
+                <p>Sold CS:GO Dragon Lore rifle to <strong>SarahM</strong></p>
+                <div class="status">Completed · 2 hours ago</div>
+            </div>
+            <div class="transaction-card">
+                <div class="transaction-header">
+                    <div class="user-info">
+                        <div class="avatar">AM</div>
+                        <div>
+                            <strong>Alex Morgan</strong>
+                            <span class="trust-badge">4.7 ★</span>
+                        </div>
+                    </div>
+                    <div class="amount">$89.00</div>
+                </div>
+                <p>Bought Fortnite account from <strong>GameTrader</strong></p>
+                <div class="status">In Progress · 30 minutes ago</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>TradeSphere</h3>
+                    <p>The secure trading platform with escrow protection and social features.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-discord"></i></a>
+                    </div>
+                </div>
+                <div class="footer-column">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="#">Home</a></li>
+                        <li><a href="#">Markets</a></li>
+                        <li><a href="#">Communities</a></li>
+                        <li><a href="#">How It Works</a></li>
+                        <li><a href="#">Support</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Legal</h3>
+                    <ul>
+                        <li><a href="#">Terms of Service</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Escrow Agreement</a></li>
+                        <li><a href="#">Dispute Resolution</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                &copy; 2023 TradeSphere. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Simple interactivity for demonstration
+        document.addEventListener('DOMContentLoaded', function() {
+            const buttons = document.querySelectorAll('.btn');
+            
+            buttons.forEach(button => {
+                button.addEventListener('click', function() {
+                    alert('This would open a signup/login modal in the full application.');
+                });
+            });
+            
+            // Simulate loading of transactions
+            console.log('TradeSphere application loaded successfully!');
+        });
+    </script>
+</body>
+</html>
